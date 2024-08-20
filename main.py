@@ -3,6 +3,20 @@
 import tkinter as tk
 from tkinter import ttk
 
+from calculations import submit_form
+
+xl=0
+yl=0
+zl=0
+dhiv=0
+diametre_pupille=0
+recouvrement=0
+k1=0
+x=0
+k2=0
+y=0
+excentricite=0
+
 # Initialisation de la fenêtre principale
 root = tk.Tk()
 root.title("Formulaires pour Oeil Gauche et Oeil Droit")
@@ -88,21 +102,6 @@ frame_droit.grid(row=0, column=1, padx=25, pady=25)
 # Créer les formulaires
 form_gauche = create_oeil_form(frame_gauche, "Gauche")
 form_droit = create_oeil_form(frame_droit, "Droit")
-def submit_form(entries):
-    data = {
-        "XL": entries["XL"].get(),
-        "YL": entries["YL"].get(),
-        "ZL": entries["ZL"].get(),
-        "DHIV": entries["DHIV"].get(),
-        "diametre_pupille": entries["diametre_pupille"].get(),
-        "recouvrement": entries["recouvrement"].get(),
-        "K1": entries["K1"].get(),
-        "X": entries["X"].get(),
-        "K2": entries["K2"].get(),
-        "Y": entries["Y"].get(),
-        "Excentricité": entries["Excentricité"].get(),
-    }
-    print(data)  # Vous pouvez remplacer cela par toute autre action à effectuer avec les données
 
 # Exemple d'utilisation avec le formulaire de l'œil gauche
 submit_button = ttk.Button(frame_gauche, text="Soumettre", command=lambda: submit_form(form_gauche))
