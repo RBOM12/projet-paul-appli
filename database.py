@@ -1,55 +1,26 @@
-import sqlite3
-from config import DATABASE_PATH
+import csv
 
-def create_tables():
-    conn = sqlite3.connect(DATABASE_PATH)
-    c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS flex_calculations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            DHIV REAL,
-            Compensation REAL,
-            K1 REAL,
-            K2 REAL,
-            Excentricité REAL,
-            DlA REAL,
-            DFLRGP REAL,
-            R0 REAL,
-            Flexibility REAL
-        )
-    ''')
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS lunette_lentilles_calculations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            DHIV REAL,
-            Compensation REAL,
-            K1 REAL,
-            K2 REAL,
-            Excentricité REAL,
-            DlA REAL,
-            DFLRGP REAL,
-            R0 REAL,
-            Flexibility REAL
-        )
-    ''')
-    conn.commit()
-    conn.close()
+from calculations import puissance_oeil
 
-def insert_data(DHIV, Compensation, K1, K2, Excentricité, DlA, DFLRGP, R0, Flexibility):
-    conn = sqlite3.connect(DATABASE_PATH)
-    c = conn.cursor()
-    c.execute('''
-        INSERT INTO flex_calculations (DHIV, Compensation, K1, K2, Excentricité, DlA, DFLRGP, R0, Flexibility)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (DHIV, Compensation, K1, K2, Excentricité, DlA, DFLRGP, R0, Flexibility))
 
-    c.execute('''
-        INSERT INTO lunette_lentilles_calculations (DHIV, Compensation, K1, K2, Excentricité, DlA, DFLRGP, R0, Flexibility)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (DHIV, Compensation, K1, K2, Excentricité, DlA, DFLRGP, R0, Flexibility))
+def chercher_bdd_lunette_to_lentille(xl):
+    with open('bdd lunette to lentille.csv') as fichier:
+        lecteur = csv.reader(fichier,delimiter=';')
+        for ligne in lecteur:
+            if ligne[0] == xl:
+                return ligne[1]
+    return None
+puissance_oeil(9,-2,40)
 
-    conn.commit()
-    conn.close()
+def puissance_oeil(xl,yl,zl):
+    #Transformation de la puissance lunette en lentille
+    #utiliser la BDD pour le faire
+    x_1=float(chercher_bdd_lunette_to_lentille(str(xl)))
+    x_2=float(chercher_bdd_lunette_to_lentille(str(xl+yl)))
+    xs=x_1
+    ys=round(x_2-x_1,2)
+    zs=zl
+    print(xs," ; ",ys," ; ",zs)
+    return xs,ys,zs
 
-# Crée les tables à l'initialisation du module
-create_tables()
+puissance_oeil(3.5,-3,40)
