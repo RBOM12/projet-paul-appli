@@ -1,19 +1,18 @@
-from ast import increment_lineno
+from database import  chercher_bdd_lunette_to_lentille
 
+xl=0
+yl=0
+zl=0
+dhiv=0
+diametre_pupille=0
+recouvrement=0
+k1=0
+x=0
+k2=0
+y=0
+excentricite=0
 
 xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr=0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-
-def puissance_oeil():
-    #Transformation de la puissance lunette en lentille
-    #utiliser la BDD pour le faire
-    global xs,ys,zs
-    x_1=xl
-    x_2=yl+xl
-    xs=x_1
-    ys=x_2
-    zs=zl
-
-    return xs,ys,zs
 
 def toricite():
     #Calcul de la toricité
@@ -66,7 +65,7 @@ def calcul_dflrpg():
     ylrpg=ys-ydla
     zlrpg=zs
     return xlrpg,ylrpg,zlrpg
-
+cpttranspo=0
 def calcul_dflrpg2():
     #Transpo plus compteur de transpo
     global cpttranspo,xdla,ydla
@@ -106,7 +105,7 @@ def submit_form(entries):
         "y": entries["Y"].get(),
         "excentricite": entries["Excentricité"].get(),
     }
-    global xl,yl,zl,dhiv,diametre_pupille,recouvrement,k1,x,k2,y,excentricite
+    global xl, yl, zl, dhiv, diametre_pupille, recouvrement, k1, x, k2, y, excentricite
     xl = int(data["xl"])
     yl = int(data["yl"])
     zl = int(data["zl"])
@@ -121,10 +120,20 @@ def submit_form(entries):
 
 
     calcul_total()
-    print(data) # Vous pouvez remplacer cela par toute autre action à effectuer avec les données
+
+def puissance_oeil1():
+    #Transformation de la puissance lunette en lentille
+    #utiliser la BDD pour le faire
+    global xs,ys,zs
+    x_1=float(chercher_bdd_lunette_to_lentille(str(xl)))
+    x_2=float(chercher_bdd_lunette_to_lentille(str(xl+yl)))
+    xs=x_1
+    ys=round(x_2-x_1,2)
+    zs=zl
+    print(xs," ; ",ys," ; ",zs)
 
 def calcul_total ():
-    puissance_oeil()
+    puissance_oeil1()
     toricite()
     test_excentricite()
     calculr0()
@@ -135,3 +144,60 @@ def calcul_total ():
     print(xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr)
     return xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr
 
+def valeurxl():
+    return xl
+def valeuryl():
+    return yl
+def valeurzl():
+    return zl
+def valeurdhiv():
+    return dhiv
+def valeurdiametre_pupille():
+    return diametre_pupille
+def valeurrecouvrement():
+    return recouvrement
+def valeurk1():
+    return k1
+def valeurx():
+    return x
+def valeurk2():
+    return k2
+def valeury():
+    return y
+def valeurexcentricite():
+    return excentricite
+def valeurxs():
+    return xs
+def valeurys():
+    return ys
+def valeurzs():
+    return zs
+def valeurtor():
+    return tor
+def valeurexi():
+    return exi
+def valeurr0():
+    return r0
+def valeurxdla():
+    return xdla
+def valeurydla():
+    return ydla
+def valeurzdla():
+    return zdla
+def valeurxlrpg():
+    return xlrpg
+def valeurylrpg():
+    return ylrpg
+def valeurzlrpg():
+    return zlrpg
+def valeurai():
+    return ai
+def valeurnf():
+    return nf
+def valeurf():
+    return f
+
+def valeurcptatr():
+    return cptatr
+def valeurcpttranspo():
+    return cpttranspo
