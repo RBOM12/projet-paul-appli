@@ -1,14 +1,15 @@
 import tkinter as tk
 from tkinter import ttk
 
-from calculations import submit_form
+from calculations import submit_form, valeurxs
+
 gauche=0
 droit=1
 
 # Initialisation de la fenêtre principale
 root = tk.Tk()
 root.title("Formulaires pour Oeil Gauche et Oeil Droit")
-root.geometry("600x400")
+root.geometry("800x600")
 
 def create_oeil_form(container, oeil_label):
     # Label pour le type d'oeil (gauche ou droit)
@@ -94,25 +95,24 @@ def create_oeil_form(container, oeil_label):
 
 # Cadre pour l'oeil gauche
 frame_gauche = ttk.Frame(root)
-frame_gauche.grid(row=0, column=0, padx=25, pady=25)
+frame_gauche.grid(row=0, column=0, padx=30, pady=30)
 
 # Cadre pour l'oeil droit
 frame_droit = ttk.Frame(root)
-frame_droit.grid(row=0, column=1, padx=25, pady=25)
+frame_droit.grid(row=0, column=1, padx=30, pady=30)
 
 # Créer les formulaires
 form_gauche = create_oeil_form(frame_gauche, "Gauche")
 form_droit = create_oeil_form(frame_droit, "Droit")
-
-# Exemple d'utilisation avec le formulaire de l'œil gauche
-submit_button = ttk.Button(frame_gauche, text="Soumettre", command=lambda: submit_form(form_gauche,gauche))
-submit_button.grid(row=12, column=0, columnspan=2, pady=10)
-# Exemple d'utilisation avec le formulaire de l'œil droit
-submit_button = ttk.Button(frame_droit, text="Soumettre", command=lambda: submit_form(form_droit,droit))
-submit_button.grid(row=12, column=0, columnspan=2, pady=10)
-
 frame_bas = ttk.Frame(root)
 frame_bas.grid(row=1, column=0, columnspan=2)
+# Exemple d'utilisation avec le formulaire de l'œil gauche
+
+# Bouton pour soumettre le formulaire
+submit_button = ttk.Button(frame_bas, text="Soumettre", command=lambda: submit_form_all())
+submit_button.grid(row=3, column=3, columnspan=2, pady=10)
+
+# Bouton pour afficher le résultat
 submit_button = ttk.Button(frame_bas, text="Afficher résultat", command=lambda: afficher_resultat())
 submit_button.grid(row=14, column=4, columnspan=2, pady=10)
 
@@ -120,11 +120,24 @@ def afficher_resultat():
     result_window = tk.Toplevel(root)
     result_window.title("Résultats")
     result_window.geometry("400x200")
+    # Cadre pour l'oeil gauche
+    frame_gauche1 = result_window
+    frame_gauche.grid(row=0, column=0, padx=30, pady=30)
+
+    # Cadre pour l'oeil droit
+    frame_droit1 = result_window
+    frame_droit.grid(row=0, column=1, padx=30, pady=30)
 
     ttk.Label(result_window, text="Résultats affichés ici").pack(pady=10)
+    #affiche xs
+    ttk.Label(frame_gauche1, text=f"xs gauche: {valeurxs()}").pack(pady=10)
+    ttk.Label(frame_droit1, text=f"xs droit: {valeurxs()}").pack(pady=10)
 
     result_button = ttk.Button(result_window, text="Fermer", command=result_window.destroy)
     result_button.pack(pady=10)
+def submit_form_all ():
+    submit_form(form_gauche,gauche)
+    submit_form(form_droit,droit)
 
 # Démarrer l'application
 root.mainloop()

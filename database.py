@@ -37,3 +37,4 @@ def chercher_f (k,tor):
             if ligne[0] == k and ligne[1] == tor:
                 return ligne[3]
     return None
+
