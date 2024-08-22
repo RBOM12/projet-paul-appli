@@ -2,7 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 
 from calculations import submit_form
-from ui import afficher_resultat
+gauche=0
+droit=1
 
 # Initialisation de la fenêtre principale
 root = tk.Tk()
@@ -53,7 +54,7 @@ def create_oeil_form(container, oeil_label):
     ttk.Label(container, text="K1:").grid(row=7, column=0, sticky=tk.W)
     k1_entry = ttk.Entry(container)
     k1_entry.grid(row=7, column=1)
-    k1_entry.insert(0, "1")
+    k1_entry.insert(0, "7.25")
 
     ttk.Label(container, text="X°:").grid(row=8, column=0, sticky=tk.W)
     x_entry = ttk.Entry(container)
@@ -63,7 +64,7 @@ def create_oeil_form(container, oeil_label):
     ttk.Label(container, text="K2:").grid(row=9, column=0, sticky=tk.W)
     k2_entry = ttk.Entry(container)
     k2_entry.grid(row=9, column=1)
-    k2_entry.insert(0, "1")
+    k2_entry.insert(0, "6.95")
 
     ttk.Label(container, text="Y°:").grid(row=10, column=0, sticky=tk.W)
     y_entry = ttk.Entry(container)
@@ -104,17 +105,26 @@ form_gauche = create_oeil_form(frame_gauche, "Gauche")
 form_droit = create_oeil_form(frame_droit, "Droit")
 
 # Exemple d'utilisation avec le formulaire de l'œil gauche
-submit_button = ttk.Button(frame_gauche, text="Soumettre", command=lambda: submit_form(form_gauche))
+submit_button = ttk.Button(frame_gauche, text="Soumettre", command=lambda: submit_form(form_gauche,gauche))
 submit_button.grid(row=12, column=0, columnspan=2, pady=10)
 # Exemple d'utilisation avec le formulaire de l'œil droit
-submit_button = ttk.Button(frame_droit, text="Soumettre", command=lambda: submit_form(form_droit))
+submit_button = ttk.Button(frame_droit, text="Soumettre", command=lambda: submit_form(form_droit,droit))
 submit_button.grid(row=12, column=0, columnspan=2, pady=10)
 
 frame_bas = ttk.Frame(root)
 frame_bas.grid(row=1, column=0, columnspan=2)
-submit_button = ttk.Button(frame_bas, text="Soumettre", command=lambda: afficher_resultat())
+submit_button = ttk.Button(frame_bas, text="Afficher résultat", command=lambda: afficher_resultat())
 submit_button.grid(row=14, column=4, columnspan=2, pady=10)
 
+def afficher_resultat():
+    result_window = tk.Toplevel(root)
+    result_window.title("Résultats")
+    result_window.geometry("400x200")
+
+    ttk.Label(result_window, text="Résultats affichés ici").pack(pady=10)
+
+    result_button = ttk.Button(result_window, text="Fermer", command=result_window.destroy)
+    result_button.pack(pady=10)
 
 # Démarrer l'application
 root.mainloop()
