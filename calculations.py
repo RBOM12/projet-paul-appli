@@ -92,64 +92,75 @@ def atr () :
     else:
         cptatr=0
     return cptatr
-def submit_form(entries,cote):
+
+
+def submit_form(entries, cote):
+    # Récupérer les données du formulaire
     data = {
-        "xl": entries["XL"].get(),
-        "yl": entries["YL"].get(),
-        "zl": entries["ZL"].get(),
-        "dhiv": entries["DHIV"].get(),
-        "diametre_pupille": entries["diametre_pupille"].get(),
-        "recouvrement": entries["recouvrement"].get(),
-        "k1": entries["K1"].get(),
-        "x": entries["X"].get(),
-        "k2": entries["K2"].get(),
-        "y": entries["Y"].get(),
-        "excentricite": entries["Excentricité"].get(),
+        "xl": int(entries["XL"].get()),
+        "yl": int(entries["YL"].get()),
+        "zl": int(entries["ZL"].get()),
+        "dhiv": int(entries["DHIV"].get()),
+        "diametre_pupille": int(entries["Diamètre de la pupille"].get()),
+        "recouvrement": int(entries["Recouvrement"].get()),
+        "k1": float(entries["K1"].get()),
+        "x": int(entries["X"].get()),
+        "k2": float(entries["K2"].get()),
+        "y": int(entries["Y"].get()),
+        "excentricite": int(entries["Excentricité"].get()),
     }
+
+    # Utilisation de variables globales pour stocker les données des deux yeux
     global xl, yl, zl, dhiv, diametre_pupille, recouvrement, k1, x, k2, y, excentricite
-    if len(xl) == 0 or len (xl) == 1:
-        print(len(xl))
-        xl.append(int(data["xl"]))
+
+    # Mise à jour des listes pour chaque œil (gauche ou droit)
+    # xl, yl, zl, k1, x, k2, y sont des listes, une pour chaque œil.
+    # On utilise l'index `cote` pour mettre à jour l'œil correspondant (0 pour gauche, 1 pour droit).
+
+    if len(xl) <= cote:
+        xl.append(data["xl"])
     else:
-        xl[cote]=int(data["xl"])
+        xl[cote] = data["xl"]
 
-    if len(yl) == 0 or len(yl) == 1:
-        yl.append(int(data["yl"]))
+    if len(yl) <= cote:
+        yl.append(data["yl"])
     else:
-        yl[cote]=int(data["yl"])
+        yl[cote] = data["yl"]
 
-    if len(zl) == 0 or len(zl) == 1:
-        zl.append(int(data["zl"]))
+    if len(zl) <= cote:
+        zl.append(data["zl"])
     else:
-        zl[cote]=int(data["zl"])
+        zl[cote] = data["zl"]
 
-    dhiv = int(data["dhiv"])
-
-    diametre_pupille = int(data["diametre_pupille"])
-
-    recouvrement = int(data["recouvrement"])
-
-    if len(k1) == 0 or len(k1) == 1:
-        k1.append(float(data["k1"]))
+    if len(k1) <= cote:
+        k1.append(data["k1"])
     else:
-        k1[cote]=float(data["k1"])
-    if len(x) == 0 or len(x) == 1:
-        x.append(int(data["x"]))
-    else:
-        x[cote]=int(data["x"])
-    if len (k2) == 0 or len(k2) == 1:
-        k2.append(float(data["k2"]))
-    else:
-        k2[cote]=float(data["k2"])
-    if len(y) == 0 or len(y) == 1:
-        y.append(int(data["y"]))
-    else:
-        y[cote]=int(data["y"])
+        k1[cote] = data["k1"]
 
-    excentricite = int(data["excentricite"])
+    if len(x) <= cote:
+        x.append(data["x"])
+    else:
+        x[cote] = data["x"]
 
+    if len(k2) <= cote:
+        k2.append(data["k2"])
+    else:
+        k2[cote] = data["k2"]
 
+    if len(y) <= cote:
+        y.append(data["y"])
+    else:
+        y[cote] = data["y"]
+
+    # Les valeurs communes (non spécifiques à un œil)
+    dhiv = data["dhiv"]
+    diametre_pupille = data["diametre_pupille"]
+    recouvrement = data["recouvrement"]
+    excentricite = data["excentricite"]
+
+    # Appeler la fonction calcul_total en passant l'œil actuel (cote)
     calcul_total(cote)
+
 
 def puissance_oeil1(cote):
     #Transformation de la puissance lunette en lentille
