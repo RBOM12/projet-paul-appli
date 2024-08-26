@@ -3,47 +3,49 @@ from database import chercher_bdd_lunette_to_lentille, chercher_aco, chercher_nf
 xl=[]
 yl=[]
 zl=[]
-dhiv=0
-diametre_pupille=0
-recouvrement=0
+dhiv=[]
+diametre_pupille=[]
+recouvrement=[]
 k1=[]
 x=[]
 k2=[]
 y=[]
-excentricite=0
-
-
-xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr=[],[],[],0,0,0,0,0,0,0,0,0,0,0,0,0
-
+excentricite=[]
+xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr=[],[],[],[],[0,0],[],[],[],[],[],[],[],[0,0],[0,0],[0,0],[0,0]
+cpttranspo=[0,0]
 def toricite(cote):
     #Calcul de la toricité
     global tor
-    tor=round(k1[cote]-k2[cote],2)
+    if len(tor)<=cote:
+        tor.append(round(k1[cote]-k2[cote],2))
+    else:
+        tor[cote]=round(k1[cote]-k2[cote],2)
 
-def test_excentricite():
+def test_excentricite(cote):
     #Test de l'excentricité si elle est supérieur à 0.55 ou inférieur à 0.45 et aura un impact sur R0
     global exi
-    if excentricite<0.45:
-        exi=-0.05
-    elif 0.45 <= excentricite <= 0.55:
-        exi=0
+    if excentricite[cote]<  0.45:
+        exi[cote]=-0.05
+    elif 0.45 <= excentricite[cote] <= 0.55:
+        exi[cote]=0
     else:
-        exi=0.05
-    return exi
+        exi[cote]=0.05
 
 def calculr0(cote):
     #Calcul de R0 en testant si tor sup ou inf a 0.2
     global r0
-    if tor>0.2:
-        r0=k1[cote]-(tor*1/3)+exi
+    if tor[cote]>0.2:
+        r0=k1[cote]-(tor[cote]*1/3)+exi[cote]
     else:
-        r0=k1[cote]+exi
+        r0=k1[cote]+exi[cote]
     r0=round_to_plusproche_0_05(r0)
+    r1=round_to_plusproche_0_05(r0)
+    print("R0 =" + str(r0) + "R1 =" + str(r1))
     return r0
 
 
 def round_to_plusproche_0_05(number):
-    return round(number * 20) / 20
+    return round(number / 0.05) * 0.05
 
 def calcul_dla(cote):
     global xdla,ydla,zdla
@@ -62,36 +64,52 @@ def calcul_dflrpg(cote):
         ydla = -ydla
 
     #Calcul de DFLRGP
-    xlrpg=xs[cote]-xdla
-    ylrpg=ys[cote]-ydla
-    zlrpg=zs
-    return xlrpg,ylrpg,zlrpg
-cpttranspo=0
-def calcul_dflrpg2():
+    if len(xlrpg) <= cote:
+        xlrpg.append(xs[cote] - xdla)
+    else:
+        xlrpg[cote] = xs[cote] - xdla
+
+    if len(ylrpg) <= cote:
+        ylrpg.append(ys[cote] - ydla)
+    else:
+        ylrpg[cote] = ys[cote] - ydla
+
+    if len(zlrpg) <= cote:
+        zlrpg.append(zs)
+    else:
+        zlrpg[cote] = zs
+
+    return xlrpg[cote],ylrpg[cote],zlrpg[cote]
+
+def calcul_dflrpg2(cote):
     #Transpo plus compteur de transpo
+
     global cpttranspo,xdla,ydla
-    if -0.75 < ylrpg < 0:
-        xdla=xdla+0.25
-        ydla=0
-        cpttranspo=1
+    if -0.75 < ylrpg[cote] < 0:
+        xdla[cote]=xdla[cote]+0.25
+        ydla[cote]=0
+
+        cpttranspo[cote] = 1
+
 
 def calcul_ai (cote) :
     # aller chercher dans la BDD
     global tor,xs,nf,f,ai
-    aco = float(chercher_aco(str(k1[cote]),str(tor)))
-    nf = float(chercher_nf(str(k1[cote]),str(tor)))
-    f = float(chercher_f(str(k1[cote]),str(tor)))
-    ai=xs[cote]-aco
-    return ai,nf,f
+    aco=[0,0]
+    aco[cote] = float(chercher_aco(str(k1[cote]),str(tor[cote])))
+    nf[cote] = float(chercher_nf(str(k1[cote]),str(tor[cote])))
+    f[cote] = float(chercher_f(str(k1[cote]),str(tor[cote])))
+    ai=xs[cote]-aco[cote]
 
-def atr () :
+
+def atr (cote) :
     #calcul si c'est flex ou pas 1 flex 0 pas flex
     global nf,f,cptatr
-    if nf>f :
-        cptatr=1
+    if nf[cote]>f[cote] :
+        cptatr[cote]=1
     else:
-        cptatr=0
-    return cptatr
+        cptatr[cote]=0
+
 
 
 def submit_form(entries, cote):
@@ -107,7 +125,7 @@ def submit_form(entries, cote):
         "x": int(entries["X"].get()),
         "k2": float(entries["K2"].get()),
         "y": int(entries["Y"].get()),
-        "excentricite": int(entries["Excentricité"].get()),
+        "excentricite": float(entries["Excentricité"].get()),
     }
 
     # Utilisation de variables globales pour stocker les données des deux yeux
@@ -151,12 +169,26 @@ def submit_form(entries, cote):
         y.append(data["y"])
     else:
         y[cote] = data["y"]
+    if len(excentricite) <= cote:
+        excentricite.append(data["excentricite"])
+    else:
+        excentricite[cote] = data["excentricite"]
 
-    # Les valeurs communes (non spécifiques à un œil)
-    dhiv = data["dhiv"]
-    diametre_pupille = data["diametre_pupille"]
-    recouvrement = data["recouvrement"]
-    excentricite = data["excentricite"]
+    if len(dhiv) <= cote:
+        dhiv.append(data["dhiv"])
+    else:
+        dhiv[cote] = data["dhiv"]
+
+    if len(diametre_pupille) <= cote:
+        diametre_pupille.append(data["diametre_pupille"])
+    else:
+        diametre_pupille[cote] = data["diametre_pupille"]
+
+    if len(recouvrement) <= cote:
+        recouvrement.append(data["recouvrement"])
+    else:
+        recouvrement[cote] = data["recouvrement"]
+
 
     # Appeler la fonction calcul_total en passant l'œil actuel (cote)
     calcul_total(cote)
@@ -179,15 +211,33 @@ def puissance_oeil1(cote):
 def calcul_total (cote):
     puissance_oeil1(cote)
     toricite(cote)
-    test_excentricite()
+    test_excentricite(cote)
     calculr0(cote)
     calcul_dla(cote)
     calcul_dflrpg(cote)
     calcul_ai(cote)
-    atr()
+    atr(cote)
     print(xl,yl,zl,dhiv,diametre_pupille,recouvrement,k1,x,k2,y,excentricite)
    # print(xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr)
     return xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr
+
+def reset ():
+    global xl,yl,zl,dhiv,diametre_pupille,recouvrement,k1,x,k2,y,excentricite
+    xl=[]
+    yl=[]
+    zl=[]
+    dhiv=[]
+    diametre_pupille=[]
+    recouvrement=[]
+    k1=[]
+    x=[]
+    k2=[]
+    y=[]
+    excentricite=0
+    global xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr
+    xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr=[],[],[],[],[0,0],[],[],[],[],[],[],[],[0,0],[0,0],[0,0],[0,0]
+    global cpttranspo
+    cpttranspo=[0,0]
 
 def valeurxl(cote):
     return xl[cote]
