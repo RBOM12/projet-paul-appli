@@ -26,7 +26,8 @@ def chercher_nf (k,tor):
         for ligne in lecteur:
             ligne = [cell.replace(',', '.') for cell in ligne]
             if ligne[0] == k and ligne[1] == tor:
-                return ligne[4]
+                return ligne[3]
+    print("erreur sur nf")
     return None
 
 def chercher_f (k,tor):
@@ -35,6 +36,7 @@ def chercher_f (k,tor):
         for ligne in lecteur:
             ligne = [cell.replace(',', '.') for cell in ligne]
             if ligne[0] == k and ligne[1] == tor:
-                return ligne[3]
+                return ligne[4]
+    print("erreur sur f")
     return None
 

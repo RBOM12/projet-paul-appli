@@ -30,6 +30,16 @@ def test_excentricite(cote):
         exi[cote]=0
     else:
         exi[cote]=0.05
+def dhiv (cote):
+    if abs(xl[cote])+abs(yl[cote])<=6:
+        dhiv[cote] = dhiv[cote] - 2.5
+    if tonus == 2:
+        dhiv[cote]=dhiv[cote]-2.5
+    elif tonus == 0:
+        dhiv[cote]=dhiv[cote]-2.0
+    else:
+        # plus proche de 9,40
+        dhiv[cote]-2.0
 
 def calculr0(cote):
     #Calcul de R0 en testant si tor sup ou inf a 0.2
@@ -59,6 +69,7 @@ def calcul_dla(cote):
 def calcul_dflrpg(cote):
     #Calcul de DFLRPG
     global xlrpg,ylrpg,zlrpg,xdla,ydla,zdla
+
     if zs != zdla:
         xdla = xdla - ydla
         ydla = -ydla
@@ -94,18 +105,18 @@ def calcul_dflrpg2(cote):
 
 def calcul_ai (cote) :
     # aller chercher dans la BDD
-    global tor,xs,nf,f,ai
+    global tor,ys,nf,f,ai
     aco=[0,0]
     aco[cote] = float(chercher_aco(str(k1[cote]),str(tor[cote])))
     nf[cote] = float(chercher_nf(str(k1[cote]),str(tor[cote])))
     f[cote] = float(chercher_f(str(k1[cote]),str(tor[cote])))
-    ai=xs[cote]-aco[cote]
+    ai[cote]=ys[cote]-aco[cote]
 
 
 def atr (cote) :
     #calcul si c'est flex ou pas 1 flex 0 pas flex
-    global nf,f,cptatr
-    if nf[cote]>f[cote] :
+    global nf,f,cptatr,ai
+    if abs(ai[cote]+nf[cote])>abs(ai[cote]+f[cote]) :
         cptatr[cote]=1
     else:
         cptatr[cote]=0
@@ -217,8 +228,8 @@ def calcul_total (cote):
     calcul_dflrpg(cote)
     calcul_ai(cote)
     atr(cote)
-    print(xl,yl,zl,dhiv,diametre_pupille,recouvrement,k1,x,k2,y,excentricite)
-   # print(xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr)
+    print("xl : "+ xl ,"yl ="+ yl,zl,dhiv,diametre_pupille,recouvrement,k1,x,k2,y,excentricite)
+    print(xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr)
     return xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr
 
 def reset ():
@@ -241,40 +252,40 @@ def reset ():
 
 def valeurxl(cote):
     return xl[cote]
-def valeuryl():
-    return yl
-def valeurzl():
-    return zl
-def valeurdhiv():
-    return dhiv
-def valeurdiametre_pupille():
-    return diametre_pupille
-def valeurrecouvrement():
-    return recouvrement
-def valeurk1():
-    return k1
-def valeurx():
-    return x
-def valeurk2():
-    return k2
-def valeury():
-    return y
-def valeurexcentricite():
-    return excentricite
-def valeurxs():
-    return xs
-def valeurys():
-    return ys
-def valeurzs():
+def valeuryl(cote):
+    return yl[cote]
+def valeurzl(cote):
+    return zl[cote]
+def valeurdhiv(cote):
+    return dhiv[cote]
+def valeurdiametre_pupille(cote):
+    return diametre_pupille[cote]
+def valeurrecouvrement(cote):
+    return recouvrement[cote]
+def valeurk1(cote):
+    return k1[cote]
+def valeurx(cote):
+    return x[cote]
+def valeurk2(cote):
+    return k2[cote]
+def valeury(cote):
+    return y[cote]
+def valeurexcentricite(cote):
+    return excentricite[cote]
+def valeurxs(cote):
+    return xs[cote]
+def valeurys(cote):
+    return ys[cote]
+def valeurzs(cote):
     return zs
-def valeurtor():
-    return tor
-def valeurexi():
-    return exi
-def valeurr0():
-    return r0
-def valeurxdla():
-    return xdla
+def valeurtor(cote):
+    return tor[cote]
+def valeurexi(cote):
+    return exi[cote]
+def valeurr0(cote):
+    return r0[cote]
+def valeurxdla(cote):
+    return xdla[cote]
 def valeurydla():
     return ydla
 def valeurzdla():
