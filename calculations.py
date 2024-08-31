@@ -1,4 +1,7 @@
+
 from database import chercher_bdd_lunette_to_lentille, chercher_aco, chercher_nf, chercher_f
+from gestion_pdf import lien_pdf
+
 #cote est les coté choisi gauche = 0 et droit = 1
 xl=[]
 yl=[]
@@ -11,8 +14,16 @@ x=[]
 k2=[]
 y=[]
 excentricite=[]
-xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr=[],[],[],[],[0,0],[],[],[],[],[],[],[],[0,0],[0,0],[0,0],[0,0]
+xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr=[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]
 cpttranspo=[0,0]
+PSC=[0,0]
+tonus=[0,0]
+HPL=[0,0]#Hauteur du prisme de larme
+GL=[0,0]#Grade lipide
+CL=[0,0]#charge lacrymale
+
+gauche = 0
+droit = 1
 def toricite(cote):
     #Calcul de la toricité
     global tor
@@ -30,28 +41,32 @@ def test_excentricite(cote):
         exi[cote]=0
     else:
         exi[cote]=0.05
-def dhiv (cote):
+def dhivcalc (cote):
     if abs(xl[cote])+abs(yl[cote])<=6:
         dhiv[cote] = dhiv[cote] - 2.5
+        return
     if tonus == 2:
         dhiv[cote]=dhiv[cote]-2.5
     elif tonus == 0:
         dhiv[cote]=dhiv[cote]-2.0
     else:
-        # plus proche de 9,40
-        dhiv[cote]-2.0
+        distance1=abs(9.4-dhiv[cote]-2.5)
+        distance2=abs(9.4-dhiv[cote]-2.0)
+        if distance1<distance2:
+            dhiv[cote]=dhiv[cote]-2.5
+        else:
+            dhiv[cote]-2.0
 
 def calculr0(cote):
     #Calcul de R0 en testant si tor sup ou inf a 0.2
-    global r0
+
     if tor[cote]>0.2:
-        r0=k1[cote]-(tor[cote]*1/3)+exi[cote]
+        r0[cote]=k1[cote]-(tor[cote]*1/3)+exi[cote]
     else:
-        r0=k1[cote]+exi[cote]
-    r0=round_to_plusproche_0_05(r0)
-    r1=round_to_plusproche_0_05(r0)
-    print("R0 =" + str(r0) + "R1 =" + str(r1))
-    return r0
+        r0[cote]=k1[cote]+exi[cote]
+    r0[cote]=round_to_plusproche_0_05(r0[cote])
+
+    print("R0 =" + str(r0[cote]) )
 
 
 def round_to_plusproche_0_05(number):
@@ -59,36 +74,36 @@ def round_to_plusproche_0_05(number):
 
 def calcul_dla(cote):
     global xdla,ydla,zdla
-    vdla1=(k1[cote]-r0)*5
-    vdla2=(k2[cote]-r0)*5
-    xdla=vdla1
-    ydla=vdla2-vdla1
-    zdla=zl
+    vdla1=(k1[cote]-r0[cote])*5
+    vdla2=(k2[cote]-r0[cote])*5
+    xdla[cote]=vdla1
+    ydla[cote]=vdla2-vdla1
+    zdla[cote]=zl[cote]
     return xdla,ydla,zdla
 
 def calcul_dflrpg(cote):
     #Calcul de DFLRPG
     global xlrpg,ylrpg,zlrpg,xdla,ydla,zdla
 
-    if zs != zdla:
-        xdla = xdla - ydla
-        ydla = -ydla
+   # if zs != zdla:
+    #    xdla = xdla - ydla
+     #   ydla = -ydla
 
     #Calcul de DFLRGP
     if len(xlrpg) <= cote:
-        xlrpg.append(xs[cote] - xdla)
+        xlrpg.append(round(xs[cote] - xdla[cote],1))
     else:
-        xlrpg[cote] = xs[cote] - xdla
+        xlrpg[cote] = round(xs[cote] - xdla[cote],1)
 
     if len(ylrpg) <= cote:
-        ylrpg.append(ys[cote] - ydla)
+        ylrpg.append(round(ys[cote] - ydla[cote],1))
     else:
-        ylrpg[cote] = ys[cote] - ydla
+        ylrpg[cote] = round(ys[cote] - ydla[cote])
 
     if len(zlrpg) <= cote:
-        zlrpg.append(zs)
+        zlrpg.append(zs[cote])
     else:
-        zlrpg[cote] = zs
+        zlrpg[cote] = zs[cote]
 
     return xlrpg[cote],ylrpg[cote],zlrpg[cote]
 
@@ -116,10 +131,21 @@ def calcul_ai (cote) :
 def atr (cote) :
     #calcul si c'est flex ou pas 1 flex 0 pas flex
     global nf,f,cptatr,ai
-    if abs(ai[cote]+nf[cote])>abs(ai[cote]+f[cote]) :
+    if HPL[cote] == 2:
         cptatr[cote]=1
-    else:
+        return
+    elif HPL[cote] == 0:
         cptatr[cote]=0
+        return
+    else:
+        if float(abs(abs(ai[cote] + nf[cote]) - abs(ai[cote] + f[cote]))) <= 0.1 and GL[cote] == 2:
+            cptatr[cote]=0
+        elif float(abs(abs(ai[cote] + nf[cote]) - abs(ai[cote] + f[cote]))) <= 0.1 and CL[cote] == 2:
+            cptatr[cote]=1
+        elif abs(ai[cote]+nf[cote])>abs(ai[cote]+f[cote]) :
+            cptatr[cote]=1
+        else:
+            cptatr[cote]=0
 
 
 
@@ -204,6 +230,53 @@ def submit_form(entries, cote):
     # Appeler la fonction calcul_total en passant l'œil actuel (cote)
     calcul_total(cote)
 
+def submit_form_deroulant(entries, cote):
+    # Récupérer les données du formulaire
+    option_values_gl_cl={"faible":0,"standard":1,"élevée":2}
+    option_values_hpl={"0.2 <":0,"0.2 < X < 0.4":1," 0.40 <":2}
+    option_values_psc={"lent":0, "standard":1,"rapide":2 }
+
+    data = {
+        "PSC":  option_values_psc[entries["PSC"].get()],
+        "Tonus": option_values_gl_cl[entries["Tonus"].get()],
+        "HPL": option_values_hpl[entries["HPL"].get()],
+        "GL": option_values_gl_cl[entries["GL"].get()],
+        "CL": option_values_gl_cl[entries["CL"].get()],
+    }
+
+    # Utilisation de variables globales pour stocker les données des deux yeux
+    global PSC, tonus, HPL, GL, CL
+
+    # Mise à jour des listes pour chaque œil (gauche ou droit)
+    # xl, yl, zl, k1, x, k2, y sont des listes, une pour chaque œil.
+    # On utilise l'index `cote` pour mettre à jour l'œil correspondant (0 pour gauche, 1 pour droit).
+
+    if len(PSC) <= cote:
+        PSC.append(data["PSC"])
+    else:
+        PSC[cote] = data["PSC"]
+
+    if len(tonus) <= cote:
+        tonus.append(data["Tonus"])
+    else:
+        tonus[cote] = data["Tonus"]
+
+    if len(HPL) <= cote:
+        HPL.append(data["HPL"])
+    else:
+        HPL[cote] = data["HPL"]
+
+    if len(GL) <= cote:
+        GL.append(data["GL"])
+    else:
+        GL[cote] = data["GL"]
+
+    if len(CL) <= cote:
+        CL.append(data["CL"])
+    else:
+        CL[cote] = data["CL"]
+
+
 
 def puissance_oeil1(cote):
     #Transformation de la puissance lunette en lentille
@@ -214,22 +287,30 @@ def puissance_oeil1(cote):
     s=xl[cote]+yl[cote]
     x_1=chercher_bdd_lunette_to_lentille(str(xl[cote]))
     x_2=chercher_bdd_lunette_to_lentille(str(s))
-    xs.append(float(x_1))
-    ys.append(float(x_2))
+    if len(xs) <= cote:
+        xs.append(float(x_1))
+    else:
+        xs[cote] = float(x_1)
+    if len(ys) <= cote:
+        ys.append(float(x_2))
+    else:
+        ys[cote] = float(x_2)
+
     zs=zl
     print(xs," ; ",ys," ; ",zs)
 
 def calcul_total (cote):
     puissance_oeil1(cote)
     toricite(cote)
+    dhivcalc(cote)
     test_excentricite(cote)
     calculr0(cote)
     calcul_dla(cote)
     calcul_dflrpg(cote)
     calcul_ai(cote)
     atr(cote)
-    print("xl : "+ xl ,"yl ="+ yl,zl,dhiv,diametre_pupille,recouvrement,k1,x,k2,y,excentricite)
-    print(xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr)
+    print( "XL",xl ,yl,zl,dhiv,diametre_pupille,recouvrement,k1,x,k2,y,excentricite)
+    print("XS",xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr)
     return xs,ys,zs,tor,exi,r0,xdla,ydla,zdla,xlrpg,ylrpg,zlrpg,ai,nf,f,cptatr
 
 def reset ():
@@ -277,7 +358,7 @@ def valeurxs(cote):
 def valeurys(cote):
     return ys[cote]
 def valeurzs(cote):
-    return zs
+    return zs[cote]
 def valeurtor(cote):
     return tor[cote]
 def valeurexi(cote):
@@ -302,8 +383,27 @@ def valeurnf():
     return nf
 def valeurf():
     return f
-
 def valeurcptatr():
     return cptatr
 def valeurcpttranspo():
     return cpttranspo
+
+datag = {
+        "xs gauche": valeurxs(0),
+        "xs droit": valeurxs(1),
+    }
+datad = {
+        "xs gauche": valeurxs(0),
+        "xs droit": valeurxs(1),
+    }
+info = {"Nom": "Dupont", "Prénom": "Jean", "Âge": 29}
+lentille = "souple"
+
+
+
+def valeurpdf (infocomp):
+    infocomp=infocomp.get()
+    option_values_hpl_inverse = {0: "0.2 <", 1: "0.2 < X < 0.4", 2: " 0.40 <"}
+    option_values_psc_inverse = {0: "lent", 1: "standard", 2: "rapide"}
+    option_values_gl_cl_inverse = {0: "faible", 1: "standard", 2: "élevée"}
+    lien_pdf(datag, datad, info, lentille, option_values_psc_inverse[PSC[gauche]], option_values_psc_inverse[PSC[droit]],  option_values_gl_cl_inverse[tonus[gauche]],  option_values_gl_cl_inverse[tonus[droit]], option_values_hpl_inverse[HPL[gauche]], option_values_hpl_inverse[HPL[droit]], option_values_gl_cl_inverse[GL[gauche]], option_values_gl_cl_inverse[GL[droit]], option_values_gl_cl_inverse[CL[gauche]], option_values_gl_cl_inverse[CL[droit]], infocomp, dhiv[0],dhiv[1],r0[0],r0[1],xlrpg[0],xlrpg[1],ylrpg[0],ylrpg[1],zlrpg[0],zlrpg[1],"SA")
